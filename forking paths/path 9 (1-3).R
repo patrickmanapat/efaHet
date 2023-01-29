@@ -6,7 +6,8 @@ library(gtools) #for permutations
 library(reshape2) #for melt
 
 #constants
-rep <- 1000
+minrep <- 1001
+maxrep <- 2000
 
 # TESTING ################################################################
 
@@ -29,10 +30,10 @@ rep <- 1000
 EFAsim <- function(n,nEta,pEta,rEta,l){
 
 #open sim loop
-for (d in 1:rep){
+for (d in minrep:maxrep){
 
 #read in generated dataset
-data <- read.table(paste('C:/RDF QRP Sim/y/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+data <- read.table(paste('../dataGen2K/y2K/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
                    header = FALSE,
                    sep = '\t')
 
@@ -54,19 +55,21 @@ targ <- matrix(0,
   }
 
 #EFA with target rotation
-efaTarget <- fa(data,
+efaTarget <- suppressWarnings(fa(data,
                 nfactors = nEta,
                 rotate = "TargetQ",
                 Target = list(targ), #target matrix must be a list
-                fm = "ols")
+                fm = "ols",
+                scores = "none"))
 
 ########## EFA/PCA ##########
 
 # (1-3) orthogonal Varimax rotation
-efa <- fa(data,
+efa <- suppressWarnings(fa(data,
           nfactors = nEta,
           rotate = "varimax",
-          fm = "ols")
+          fm = "ols",
+          scores = "none"))
   
 # Collect Loadings and Check for Reflection #####################
 
@@ -115,10 +118,11 @@ dataDrop <- data[ ,!(names(data) %in% drop25)]
 ########## EFA/PCA ##########
 
 # (1-3) orthogonal Varimax rotation
-efaDrop <- fa(dataDrop,
+efaDrop <- suppressWarnings(fa(dataDrop,
               nfactors = nEta,
               rotate = "varimax",
-              fm = "ols")
+              fm = "ols",
+              scores = "none"))
 
 #generating loadings
 genLoadDrop <- matrix(l,
@@ -211,21 +215,23 @@ for (i in 1:nEta) {
 }
 
 #EFA with target rotation
-efaTarget <- fa(data,
+efaTarget <- suppressWarnings(fa(data,
                 nfactors = nEta,
                 rotate = "TargetQ",
                 Target = list(targ), #target matrix must be a list
-                fm = "ols")
+                fm = "ols",
+                scores = "none"))
 
 targPhi <- efaTarget$Phi
 
 ########## EFA/PCA ##########
 
 # (1-3) orthogonal Varimax rotation
-efa <- fa(data,
+efa <- suppressWarnings(fa(data,
           nfactors = nEta,
           rotate = "varimax",
-          fm = "ols")
+          fm = "ols",
+          scores = "none"))
 
 efaPhi <- efa$Phi #only for nEta > 1
 
@@ -404,10 +410,11 @@ dataDrop <- data[ ,!(names(data) %in% drop25)]
 ########## EFA/PCA ##########
 
 # (1-3) orthogonal Varimax rotation
-efaDrop <- fa(dataDrop,
+efaDrop <- suppressWarnings(fa(dataDrop,
               nfactors = nEta,
               rotate = "varimax",
-              fm = "ols")
+              fm = "ols",
+              scores = "none"))
 
 efaPhiDrop <- efaDrop$Phi #only for nEta > 1
 
@@ -516,179 +523,180 @@ estK <- mean(estCompK[3,])
 #checks
 outCheck <- cbind(n,nEta,pEta,rEta,l,targReflect,estReflect,estReflectDrop,countTargPerm,countEstPerm,targResMin,targAbsMin,targResAbs,estResMin,estAbsMin,estResAbs,estResMinDrop,estAbsMinDrop,estResAbsDrop)
 
-if(d == 1){finalCheck <- outCheck}
-if(d > 1){finalCheck <- rbind(finalCheck,outCheck)}
+if(d == minrep){finalCheck <- outCheck}
+if(d > minrep){finalCheck <- rbind(finalCheck,outCheck)}
 
 #recovery measures
 outRecov <- cbind(n,nEta,pEta,rEta,l,targK,estK,mean25,max25)
 
-if(d == 1){finalRecov <- outRecov}
-if(d > 1){finalRecov <- rbind(finalRecov,outRecov)}
+if(d == minrep){finalRecov <- outRecov}
+if(d > minrep){finalRecov <- rbind(finalRecov,outRecov)}
 
 #objects
 write.table(targ,
-            paste('C:/RDF QRP Sim/path 9/saved objects/target rotation/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/target rotation/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(targPhi,
-            paste('C:/RDF QRP Sim/path 9/saved objects/factor correlations (target)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/factor correlations (target)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(efaPhi,
-            paste('C:/RDF QRP Sim/path 9/saved objects/factor correlations/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/factor correlations/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(efaPhiDrop,
-            paste('C:/RDF QRP Sim/path 9/saved objects/factor correlations (drop)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/factor correlations (drop)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(genLoad,
-            paste('C:/RDF QRP Sim/path 9/saved objects/generating loadings/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/generating loadings/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(genLoadDrop,
-            paste('C:/RDF QRP Sim/path 9/saved objects/generating loadings (drop)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/generating loadings (drop)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(targTop1,
-            paste('C:/RDF QRP Sim/path 9/saved objects/greatest absolute loadings (target)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/greatest absolute loadings (target)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(targTop2,
-            paste('C:/RDF QRP Sim/path 9/saved objects/greatest negative loadings (target)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/greatest negative loadings (target)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(estTop1,
-            paste('C:/RDF QRP Sim/path 9/saved objects/greatest absolute loadings/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/greatest absolute loadings/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(estTop2,
-            paste('C:/RDF QRP Sim/path 9/saved objects/greatest negative loadings/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/greatest negative loadings/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 # write.table(estTopDrop,
-#             paste('C:/RDF QRP Sim/path 9/saved objects/greatest absolute loadings (drop)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+#             paste('C:/RDF QRP Sim/path 7/saved objects/greatest absolute loadings (drop)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
 #             row.names = FALSE,
 #             col.names = FALSE,
 #             sep = '\t')
 
 write.table(targLoadRes,
-            paste('C:/RDF QRP Sim/path 9/saved objects/ss residual (target)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/ss residual (target)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(targLoadAbs,
-            paste('C:/RDF QRP Sim/path 9/saved objects/mean absolute bias (target)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/mean absolute bias (target)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(target,
-            paste('C:/RDF QRP Sim/path 9/saved objects/estimated loadings (target)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/estimated loadings (target)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(estLoadRes,
-            paste('C:/RDF QRP Sim/path 9/saved objects/ss residual/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/ss residual/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(estLoadAbs,
-            paste('C:/RDF QRP Sim/path 9/saved objects/mean absolute bias/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/mean absolute bias/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(estimated,
-            paste('C:/RDF QRP Sim/path 9/saved objects/estimated loadings/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/estimated loadings/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(estLoadResDrop,
-            paste('C:/RDF QRP Sim/path 9/saved objects/ss residual (drop)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/ss residual (drop)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(estLoadAbsDrop,
-            paste('C:/RDF QRP Sim/path 9/saved objects/mean absolute bias (drop)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/mean absolute bias (drop)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(estimatedDrop,
-            paste('C:/RDF QRP Sim/path 9/saved objects/estimated loadings (drop)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/estimated loadings (drop)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(targCompK,
-            paste('C:/RDF QRP Sim/path 9/saved objects/congruence coefficient (target)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/congruence coefficient (target)/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(estCompK,
-            paste('C:/RDF QRP Sim/path 9/saved objects/congruence coefficient/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/congruence coefficient/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = FALSE,
             col.names = FALSE,
             sep = '\t')
 
 write.table(low25,
-            paste('C:/RDF QRP Sim/path 9/saved objects/items dropped/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+            paste('./2K/objects/items dropped/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
             row.names = TRUE,
             col.names = FALSE,
             sep = '\t')
 
 #close sim loop
 }
-
+  
 write.table(finalCheck, 
-            paste('C:/RDF QRP Sim/path 9/checks/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'.dat',sep=''),
+            paste('./2K/checks/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'.dat',sep=''),
             row.names = FALSE,
             col.names = TRUE,
             sep = '\t')
 
 write.table(finalRecov, 
-            paste('C:/RDF QRP Sim/path 9/recovery/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'.dat',sep=''),
+            paste('./2K/recovery/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'.dat',sep=''),
             row.names = FALSE,
             col.names = TRUE,
             sep = '\t')
-
+  
 #close sim function
 }
 
 # SIMULATION CONDITIONS ##################################################
 
-#EFAsim(n,nEta,pEta,rEta,l)
+#simulation runs: EFAsim(n,nEta,pEta,rEta,l)
 EFAsim( 60,1, 8,0.3,0.45)
 EFAsim(100,1, 8,0.3,0.45)
 EFAsim(200,1, 8,0.3,0.45)
 EFAsim(400,1, 8,0.3,0.45)
+
 EFAsim( 60,3, 8,0.3,0.45)
 EFAsim(100,3, 8,0.3,0.45)
 EFAsim(200,3, 8,0.3,0.45)
@@ -702,6 +710,7 @@ EFAsim( 60,1,12,0.3,0.45)
 EFAsim(100,1,12,0.3,0.45)
 EFAsim(200,1,12,0.3,0.45)
 EFAsim(400,1,12,0.3,0.45)
+
 EFAsim( 60,3,12,0.3,0.45)
 EFAsim(100,3,12,0.3,0.45)
 EFAsim(200,3,12,0.3,0.45)
@@ -711,10 +720,6 @@ EFAsim(100,5,12,0.3,0.45)
 EFAsim(200,5,12,0.3,0.45)
 EFAsim(400,5,12,0.3,0.45)
 
-EFAsim( 60,1, 8,0.5,0.45)
-EFAsim(100,1, 8,0.5,0.45)
-EFAsim(200,1, 8,0.5,0.45)
-EFAsim(400,1, 8,0.5,0.45)
 EFAsim( 60,3, 8,0.5,0.45)
 EFAsim(100,3, 8,0.5,0.45)
 EFAsim(200,3, 8,0.5,0.45)
@@ -724,10 +729,6 @@ EFAsim(100,5, 8,0.5,0.45)
 EFAsim(200,5, 8,0.5,0.45)
 EFAsim(400,5, 8,0.5,0.45)
 
-EFAsim( 60,1,12,0.5,0.45)
-EFAsim(100,1,12,0.5,0.45)
-EFAsim(200,1,12,0.5,0.45)
-EFAsim(400,1,12,0.5,0.45)
 EFAsim( 60,3,12,0.5,0.45)
 EFAsim(100,3,12,0.5,0.45)
 EFAsim(200,3,12,0.5,0.45)
@@ -737,10 +738,6 @@ EFAsim(100,5,12,0.5,0.45)
 EFAsim(200,5,12,0.5,0.45)
 EFAsim(400,5,12,0.5,0.45)
 
-EFAsim( 60,1, 8,0.7,0.45)
-EFAsim(100,1, 8,0.7,0.45)
-EFAsim(200,1, 8,0.7,0.45)
-EFAsim(400,1, 8,0.7,0.45)
 EFAsim( 60,3, 8,0.7,0.45)
 EFAsim(100,3, 8,0.7,0.45)
 EFAsim(200,3, 8,0.7,0.45)
@@ -750,10 +747,6 @@ EFAsim(100,5, 8,0.7,0.45)
 EFAsim(200,5, 8,0.7,0.45)
 EFAsim(400,5, 8,0.7,0.45)
 
-EFAsim( 60,1,12,0.7,0.45)
-EFAsim(100,1,12,0.7,0.45)
-EFAsim(200,1,12,0.7,0.45)
-EFAsim(400,1,12,0.7,0.45)
 EFAsim( 60,3,12,0.7,0.45)
 EFAsim(100,3,12,0.7,0.45)
 EFAsim(200,3,12,0.7,0.45)
@@ -767,6 +760,7 @@ EFAsim( 60,1, 8,0.3,0.71)
 EFAsim(100,1, 8,0.3,0.71)
 EFAsim(200,1, 8,0.3,0.71)
 EFAsim(400,1, 8,0.3,0.71)
+
 EFAsim( 60,3, 8,0.3,0.71)
 EFAsim(100,3, 8,0.3,0.71)
 EFAsim(200,3, 8,0.3,0.71)
@@ -780,6 +774,7 @@ EFAsim( 60,1,12,0.3,0.71)
 EFAsim(100,1,12,0.3,0.71)
 EFAsim(200,1,12,0.3,0.71)
 EFAsim(400,1,12,0.3,0.71)
+
 EFAsim( 60,3,12,0.3,0.71)
 EFAsim(100,3,12,0.3,0.71)
 EFAsim(200,3,12,0.3,0.71)
@@ -789,10 +784,6 @@ EFAsim(100,5,12,0.3,0.71)
 EFAsim(200,5,12,0.3,0.71)
 EFAsim(400,5,12,0.3,0.71)
 
-EFAsim( 60,1, 8,0.5,0.71)
-EFAsim(100,1, 8,0.5,0.71)
-EFAsim(200,1, 8,0.5,0.71)
-EFAsim(400,1, 8,0.5,0.71)
 EFAsim( 60,3, 8,0.5,0.71)
 EFAsim(100,3, 8,0.5,0.71)
 EFAsim(200,3, 8,0.5,0.71)
@@ -802,10 +793,6 @@ EFAsim(100,5, 8,0.5,0.71)
 EFAsim(200,5, 8,0.5,0.71)
 EFAsim(400,5, 8,0.5,0.71)
 
-EFAsim( 60,1,12,0.5,0.71)
-EFAsim(100,1,12,0.5,0.71)
-EFAsim(200,1,12,0.5,0.71)
-EFAsim(400,1,12,0.5,0.71)
 EFAsim( 60,3,12,0.5,0.71)
 EFAsim(100,3,12,0.5,0.71)
 EFAsim(200,3,12,0.5,0.71)
@@ -815,10 +802,6 @@ EFAsim(100,5,12,0.5,0.71)
 EFAsim(200,5,12,0.5,0.71)
 EFAsim(400,5,12,0.5,0.71)
 
-EFAsim( 60,1, 8,0.7,0.71)
-EFAsim(100,1, 8,0.7,0.71)
-EFAsim(200,1, 8,0.7,0.71)
-EFAsim(400,1, 8,0.7,0.71)
 EFAsim( 60,3, 8,0.7,0.71)
 EFAsim(100,3, 8,0.7,0.71)
 EFAsim(200,3, 8,0.7,0.71)
@@ -828,10 +811,6 @@ EFAsim(100,5, 8,0.7,0.71)
 EFAsim(200,5, 8,0.7,0.71)
 EFAsim(400,5, 8,0.7,0.71)
 
-EFAsim( 60,1,12,0.7,0.71)
-EFAsim(100,1,12,0.7,0.71)
-EFAsim(200,1,12,0.7,0.71)
-EFAsim(400,1,12,0.7,0.71)
 EFAsim( 60,3,12,0.7,0.71)
 EFAsim(100,3,12,0.7,0.71)
 EFAsim(200,3,12,0.7,0.71)
@@ -845,6 +824,7 @@ EFAsim( 60,1, 8,0.3,0.89)
 EFAsim(100,1, 8,0.3,0.89)
 EFAsim(200,1, 8,0.3,0.89)
 EFAsim(400,1, 8,0.3,0.89)
+
 EFAsim( 60,3, 8,0.3,0.89)
 EFAsim(100,3, 8,0.3,0.89)
 EFAsim(200,3, 8,0.3,0.89)
@@ -858,6 +838,7 @@ EFAsim( 60,1,12,0.3,0.89)
 EFAsim(100,1,12,0.3,0.89)
 EFAsim(200,1,12,0.3,0.89)
 EFAsim(400,1,12,0.3,0.89)
+
 EFAsim( 60,3,12,0.3,0.89)
 EFAsim(100,3,12,0.3,0.89)
 EFAsim(200,3,12,0.3,0.89)
@@ -867,10 +848,6 @@ EFAsim(100,5,12,0.3,0.89)
 EFAsim(200,5,12,0.3,0.89)
 EFAsim(400,5,12,0.3,0.89)
 
-EFAsim( 60,1, 8,0.5,0.89)
-EFAsim(100,1, 8,0.5,0.89)
-EFAsim(200,1, 8,0.5,0.89)
-EFAsim(400,1, 8,0.5,0.89)
 EFAsim( 60,3, 8,0.5,0.89)
 EFAsim(100,3, 8,0.5,0.89)
 EFAsim(200,3, 8,0.5,0.89)
@@ -880,10 +857,6 @@ EFAsim(100,5, 8,0.5,0.89)
 EFAsim(200,5, 8,0.5,0.89)
 EFAsim(400,5, 8,0.5,0.89)
 
-EFAsim( 60,1,12,0.5,0.89)
-EFAsim(100,1,12,0.5,0.89)
-EFAsim(200,1,12,0.5,0.89)
-EFAsim(400,1,12,0.5,0.89)
 EFAsim( 60,3,12,0.5,0.89)
 EFAsim(100,3,12,0.5,0.89)
 EFAsim(200,3,12,0.5,0.89)
@@ -893,10 +866,6 @@ EFAsim(100,5,12,0.5,0.89)
 EFAsim(200,5,12,0.5,0.89)
 EFAsim(400,5,12,0.5,0.89)
 
-EFAsim( 60,1, 8,0.7,0.89)
-EFAsim(100,1, 8,0.7,0.89)
-EFAsim(200,1, 8,0.7,0.89)
-EFAsim(400,1, 8,0.7,0.89)
 EFAsim( 60,3, 8,0.7,0.89)
 EFAsim(100,3, 8,0.7,0.89)
 EFAsim(200,3, 8,0.7,0.89)
@@ -906,10 +875,6 @@ EFAsim(100,5, 8,0.7,0.89)
 EFAsim(200,5, 8,0.7,0.89)
 EFAsim(400,5, 8,0.7,0.89)
 
-EFAsim( 60,1,12,0.7,0.89)
-EFAsim(100,1,12,0.7,0.89)
-EFAsim(200,1,12,0.7,0.89)
-EFAsim(400,1,12,0.7,0.89)
 EFAsim( 60,3,12,0.7,0.89)
 EFAsim(100,3,12,0.7,0.89)
 EFAsim(200,3,12,0.7,0.89)
