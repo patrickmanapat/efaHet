@@ -4,17 +4,19 @@
 library(psych) #for fa.parallel
 
 #constants
-rep <- 1000
+minrep <- 4001
+maxrep <- 5000
+K <- "5K"
 
 # TESTING ################################################################
-
+# 
 # #test runs
-# n <- 200
+# n <- 60
 # nEta <- 3
-# pEta <- 8
-# rEta <- 0.5
+# pEta <- 12
+# rEta <- 0.3
 # l <- 0.45
-# d <- 718
+# d <- 4001
 # PA <- 1
 # EFA <- 2
 # rot <- 1
@@ -30,10 +32,10 @@ rep <- 1000
 EFAsim <- function(n,nEta,pEta,rEta,l){
 
 #open sim loop  
-for (d in 1:rep){
+for (d in minrep:maxrep){
 
 #read in generated dataset
-data <- read.table(paste('E:/ASU/Simulations/RDF QRP Sim/Data Generation/y/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
+data <- read.table(paste('../y',K,'/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'d',d,'.dat',sep=''),
                    header = FALSE,
                    sep = '\t')
 
@@ -65,14 +67,14 @@ if(K1_nFact == nEta) {K1_nFactCorrect <- 1} else {K1_nFactCorrect <- 0}
 out <- cbind(n,nEta,pEta,rEta,l,PA_nFact,PA_nComp,K1_nFact,PA_nFactCorrect,PA_nCompCorrect,K1_nFactCorrect)
 
 #compile output from every iteration
-if(d == 1){final <- out}
-if(d > 1){final <- rbind(final,out)}
+if(d == minrep){final <- out}
+if(d > minrep){final <- rbind(final,out)}
 
 #close sim loop
 }
 
 write.table(final, 
-            paste('E:/ASU/Simulations/RDF QRP Sim/Number of Factors/results/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'.dat',sep=''),
+            paste('./results',K,'/','nEta',nEta,'pEta',pEta,'rEta',rEta,'l',l,'n',n,'.dat',sep=''),
             row.names = FALSE,
             col.names = TRUE,
             sep = '\t')
@@ -87,6 +89,7 @@ EFAsim( 60,1, 8,0.3,0.45)
 EFAsim(100,1, 8,0.3,0.45)
 EFAsim(200,1, 8,0.3,0.45)
 EFAsim(400,1, 8,0.3,0.45)
+
 EFAsim( 60,3, 8,0.3,0.45)
 EFAsim(100,3, 8,0.3,0.45)
 EFAsim(200,3, 8,0.3,0.45)
@@ -100,6 +103,7 @@ EFAsim( 60,1,12,0.3,0.45)
 EFAsim(100,1,12,0.3,0.45)
 EFAsim(200,1,12,0.3,0.45)
 EFAsim(400,1,12,0.3,0.45)
+
 EFAsim( 60,3,12,0.3,0.45)
 EFAsim(100,3,12,0.3,0.45)
 EFAsim(200,3,12,0.3,0.45)
@@ -149,6 +153,7 @@ EFAsim( 60,1, 8,0.3,0.71)
 EFAsim(100,1, 8,0.3,0.71)
 EFAsim(200,1, 8,0.3,0.71)
 EFAsim(400,1, 8,0.3,0.71)
+
 EFAsim( 60,3, 8,0.3,0.71)
 EFAsim(100,3, 8,0.3,0.71)
 EFAsim(200,3, 8,0.3,0.71)
@@ -162,6 +167,7 @@ EFAsim( 60,1,12,0.3,0.71)
 EFAsim(100,1,12,0.3,0.71)
 EFAsim(200,1,12,0.3,0.71)
 EFAsim(400,1,12,0.3,0.71)
+
 EFAsim( 60,3,12,0.3,0.71)
 EFAsim(100,3,12,0.3,0.71)
 EFAsim(200,3,12,0.3,0.71)
@@ -211,6 +217,7 @@ EFAsim( 60,1, 8,0.3,0.89)
 EFAsim(100,1, 8,0.3,0.89)
 EFAsim(200,1, 8,0.3,0.89)
 EFAsim(400,1, 8,0.3,0.89)
+
 EFAsim( 60,3, 8,0.3,0.89)
 EFAsim(100,3, 8,0.3,0.89)
 EFAsim(200,3, 8,0.3,0.89)
@@ -224,6 +231,7 @@ EFAsim( 60,1,12,0.3,0.89)
 EFAsim(100,1,12,0.3,0.89)
 EFAsim(200,1,12,0.3,0.89)
 EFAsim(400,1,12,0.3,0.89)
+
 EFAsim( 60,3,12,0.3,0.89)
 EFAsim(100,3,12,0.3,0.89)
 EFAsim(200,3,12,0.3,0.89)
